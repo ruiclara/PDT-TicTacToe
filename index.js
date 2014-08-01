@@ -21,7 +21,7 @@ var io = require('socket.io').listen(app.listen(port));
 console.log('Listening on Port ' + port);
 
 // Game variables
-var onlinePlayers = new Array();
+global.onlinePlayers = new Array();
 
 io.sockets.on('connection', function(socket) {
 	socket.emit('message', { message: 'welcome!'});
@@ -38,19 +38,19 @@ io.sockets.on('connection', function(socket) {
 		console.log('Registering player: ' + data.playerName);
 
 		// Check if the player name is valis and doesn't exist
-		if(data === '' || onlinePlayers.indexOf(data.playerName) >= 0) {
+		if(data === '' || global.onlinePlayers.indexOf(data.playerName) >= 0) {
 			console.log('Registration Unsuccessful');
 			return;
 		}
 
-		onlinePlayers.push(data.playerName);
+		global.onlinePlayers.push(data.playerName);
 		socket.username = data.playerName;
 
-		socket.emit('successfulRegistration', {onlinePlayers: onlinePlayers});
+		socket.emit('successfulRegistration', {onlinePlayers: global.onlinePlayers});
 	});
 
 	socket.on('disconnect', function() {
-		onlinePlayers.splice(onlinePlayers.indexOf(socket.username), 1);
+		global.onlinePlayers.splice(global.onlinePlayers.indexOf(socket.username), 1);
 		console.log(socket.username + ' disconnect!');
 	});
 });
