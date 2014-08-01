@@ -21,7 +21,8 @@ var io = require('socket.io').listen(app.listen(port));
 console.log('Listening on Port ' + port);
 
 // Game variables
-global.onlinePlayers = new Array();
+global.onlinePlayers = new Array(); // Keeps sockets in a dictionary with key username
+global.playerNames = new Array(); // Keeps the usernames in a simple array
 
 io.sockets.on('connection', function(socket) {
 	socket.emit('message', { message: 'welcome!'});
@@ -43,9 +44,10 @@ io.sockets.on('connection', function(socket) {
 			return;
 		}
 
+		global.playerNames.push(data.playerName);
 		socket.username = data.playerName;
-		global.onlinePlayers[socket.username] = socket;
-		socket.emit('successfulRegistration', {onlinePlayers: global.onlinePlayers});
+		global.onlinePlayers[data.playerName] = socket;
+		socket.emit('successfulRegistration', {onlinePlayers: global.playerNames});
 	});
 
 	socket.on('invite', function(data) {
@@ -53,7 +55,9 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('disconnect', function() {
-		global.onlinePlayers.splice(global.onlinePlayers.indexOf(socket), 1);
-		console.log(socket.username + ' disconnect!');
+		var playerIndex = global.onlinePlayers.indexOf(socket.username);
+		global.onlinePlayers.splice(global.playerNames[playerIndex]);
+		global.playerNames.splice(playerIndex, 1);
+		console.log(socket.username + ' disconnected!');
 	});
 });
