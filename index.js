@@ -52,6 +52,8 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('invite', function(data) {
 		console.log(socket.username + ' is inviting ' + data.playerName + ' for a game!');
+
+		global.onlinePlayers[data.playerName].emit('message', {message: 'Invite!'});
 	});
 
 	socket.on('disconnect', function() {
