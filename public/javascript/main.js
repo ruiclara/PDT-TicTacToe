@@ -21,13 +21,6 @@ socket.on('message', function(data) {
 	console.log('Server: ' + data.message);
 });
 
-
-function loadOnlinePlayers(playersList) {
-	for(player in playersList) {
-		$('#opponentSelect').append('<option>' + playersList[player] + '</option>');
-	}
-	$('#onlinePlayers').show();
-}
 // Server Acknowledges the client has been registered
 // Data contains an array of online users
 socket.on('successfulRegistration', function(data) {
@@ -49,11 +42,19 @@ function register()  {
 	return false;
 }
 
+function loadOnlinePlayers(playersList) {
+	for(player in playersList) {
+		$('#opponentSelect').append('<option>' + playersList[player] + '</option>');
+	}
+	$('#onlinePlayers').show();
+}
+
 function refreshOnlinePlayers() {
 	window.alert('Not implemented!');
 }
 
 function invitePlayer() {
+	var opponent = $('#opponentSelect').find(':selected').text();
 	
-	//socket.emit('invite', {playerName: })
+	socket.emit('invite', {playerName: opponent});
 }

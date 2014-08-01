@@ -38,19 +38,22 @@ io.sockets.on('connection', function(socket) {
 		console.log('Registering player: ' + data.playerName);
 
 		// Check if the player name is valis and doesn't exist
-		if(data === '' || global.onlinePlayers.indexOf(data.playerName) >= 0) {
+		if(data === '') {
 			console.log('Registration Unsuccessful');
 			return;
 		}
 
-		global.onlinePlayers.push(data.playerName);
 		socket.username = data.playerName;
-
+		global.onlinePlayers[socket.username] = socket;
 		socket.emit('successfulRegistration', {onlinePlayers: global.onlinePlayers});
 	});
 
+	socket.on('invite', function(data) {
+		console.log(socket.username + ' is inviting ' + data.playerName + ' for a game!');
+	});
+
 	socket.on('disconnect', function() {
-		global.onlinePlayers.splice(global.onlinePlayers.indexOf(socket.username), 1);
+		global.onlinePlayers.splice(global.onlinePlayers.indexOf(socket), 1);
 		console.log(socket.username + ' disconnect!');
 	});
 });
