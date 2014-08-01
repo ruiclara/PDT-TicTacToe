@@ -1,0 +1,22 @@
+{
+  "name": "TicTacToeExpress",
+  "version": "0.0.0",
+  "description": "A Simple 2 Player Tic-Tac-Toe Game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tic-tac-toe",
+    "fun",
+    "games"
+  ],
+  "author": "Rui Teixeira",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "latest",
+    "express": "latest",
+    "jade": "latest",
+    "ejs": "latest"
+  }
+}
