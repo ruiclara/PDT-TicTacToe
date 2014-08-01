@@ -20,10 +20,37 @@ var io = require('socket.io').listen(app.listen(port));
 
 console.log('Listening on Port ' + port);
 
+// Game variables
+var onlinePlayers = new Array();
+
 io.sockets.on('connection', function(socket) {
-	console.log('Connected');
 	socket.emit('message', { message: 'welcome!'});
+
 	socket.on('send', function(data) {
 		io.sockets.emit('message', data)
-	})
+	});
+
+	socket.on('startGame', function(data) {
+		console.log('Game starting between ' + data.player1 + ' and ' + data.player2);
+	});
+
+	socket.on('register', function(data) {
+		console.log('Registering player: ' + data.playerName);
+
+		// Check if the player name is valis and doesn't exist
+		if(data === '' || onlinePlayers.indexOf(data.playerName) >= 0) {
+			console.log('Registration Unsuccessful');
+			return;
+		}
+
+		onlinePlayers.push(data.playerName);
+		socket.username = data.playerName;
+
+		socket.emit('successfulRegistration', {onlinePlayers: onlinePlayers});
+	});
+
+	socket.on('disconnect', function() {
+		onlinePlayers.splice(onlinePlayers.indexOf(socket.username), 1);
+		console.log(socket.username + ' disconnect!');
+	});
 });

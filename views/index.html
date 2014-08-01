@@ -1,14 +1,23 @@
 <html>
 <head>
+	<link rel="stylesheet" type="style/css" href="/styles/main.css">
 	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/javascript/main.js"></script>
 </head>
 <body>
 	<h1>Tic Tac Toe</h1>
-	<table> 
-		
+	<form name="startForm" id="startForm">
+		Username: <input type="text" name="nameInput" id="nameInput" placeholder="Username"/>
+		<button onclick="return register(this);">Go</button>
+	</form>
+	<div id="onlinePlayers" hidden>
+		<p>Choose your opponent</p>
+		<select id="opponentSelect" size="10"></select>
+		<button onclick="refreshOnlinePlayers()">Refresh</button>
+		<button onclick="invitePlayer()">Invite</button>
+	</div>
+	<table  id="gameTable" hidden> 
 	</table>
-	<button onclick="send()">Random</button>
 </body>
 </html>

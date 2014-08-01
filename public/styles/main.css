@@ -1,0 +1,28 @@
+#gameTable {
+	border-collapse: collapse;
+}
+
+	#gameTable a {
+		display: block;
+		height: 50px;
+		width: 50px;
+	}
+
+
+	#gameTable td[id*='cell'][id$='0'] {
+		border-right: 1px solid black;
+	}
+
+	#gameTable td[id*='cell'][id$='2'] {
+		border-left: 1px solid black;
+	}
+
+	#gameTable td[id*='cell-1'] {
+		border-top: 1px solid black;
+		border-bottom: 1px solid black;
+	}
+
+
+#opponentSelect {
+	width: 300px;
+}
