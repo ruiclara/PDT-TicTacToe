@@ -1,3 +1,7 @@
+#mainInfo div strong {
+	float: left;
+}
+
 #gameTable {
 	border-collapse: collapse;
 }
