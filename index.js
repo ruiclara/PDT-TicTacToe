@@ -139,6 +139,7 @@ function Game(player1, player2) {
 						[0 , 0, 0],
 						[0 , 0, 0]];
 		for(var player = 0; player < this.players.length; player++) {
+			// This needs to get out of game - It's out of it's scope
 			global.onlinePlayers[this.players[player]].emit('startGame', {gameID: gameID, opponent: this.players[player]});
 		}
 	};
