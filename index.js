@@ -121,7 +121,13 @@ io.sockets.on('connection', function(socket) {
 		else {
 			console.log('Not valid!');
 		}
-		
+		// check if the player has one
+		if(game.checkGame(socket.username, data.move)) {
+			onlinePlayers[global.games[socket.gameID].player1].emit('stopGame', {});
+			onlinePlayers[global.games[socket.gameID].player2].emit('stopGame', {});
+			global.games.splice(socket.gameID, 1);
+		}
+
 	});
 
 	socket.on('disconnect', function() {
@@ -132,8 +138,12 @@ io.sockets.on('connection', function(socket) {
 		}
 
 		// Stop any game the user is currently in
-		games[socket.gameID].stopGame();
-
+		if(games[socket.gameID] != null) {
+			onlinePlayers[global.games[socket.gameID].player1].emit('stopGame', {});
+			onlinePlayers[global.games[socket.gameID].player2].emit('stopGame', {});
+			global.games.splice(socket.gameID, 1);
+		}
+		
 		// Remove player
 		var playerIndex = global.onlinePlayers.indexOf(socket.username);
 		global.onlinePlayers.splice(global.playerNames[playerIndex]);
@@ -175,7 +185,6 @@ function Game(player1, player2) {
 		}
 	}
 
-	// TODO: Check if player can play in this game
 	this.move = function(player, move) {
 		if(this.table[move.row][move.col] === 0 && player === this.currentPlayer) {
 			this.table[move.row][move.col] = player;
@@ -190,15 +199,66 @@ function Game(player1, player2) {
 
 	// Checks if the game is finished
 	// 
-	this.checkGame = function() {
+	this.checkGame = function(player, move) {
+		var playerWon = true;
+
 		if(this.roundCount < 5 ) {
-			return '';
+			console.log('Not finished');
+			return false;
 		}
+		
+		// check if player won vertically
+		for(var i = 0; i < 3; i++) {
+			if(this.table[i][move.col] != player) {
+				playerWon = false;
+				break;
+			}
+		}
+		if(playerWon) return playerWon;
+		else playerWon = true;
+		// Check if player won horizontally
+		for(var i = 0; i < 3; i++) {
+			if(this.table[move.row][i] != player) {
+				playerWon = false;
+				break;
+			}
+		}
+		if(playerWon) return playerWon;
+		else playerWon = true;
+		console.log('Gets here!');
+		// Check if player one in one of the diagonals
+		// Left-top to right-bottom
+		var col = 0;
+		var row = 0;
+		for(var i = 0; i < 3; i++) {
+			console.log(this.table[row][col]);
+			if(this.table[row][col] != player) {
+				playerWon = false;
+				break;
+			}
+			col++;
+			row++;
+		}
+		if(playerWon) console.log('Player ' + player + ' won!');//return playerWon;
+		else playerWon = true;
+		// Letf-bottom to right-bottom
+		var col = 0;
+		var row = 2;
+		for(var i = 0; i < 3; i++) {
+			console.log(this.table[row][col]);
+			if(this.table[row][col] != player) {
+				playerWon = false;
+				break;
+			}
+			col++;
+			row--;
+		}
+
+		if(playerWon) console.log('Player ' + player + ' won!');//return playerWon;
 	}
 
 	// Stop Game
 	this.stopGame = function() {
-		player1.emit('stopGame', {});
-		player2.emit('stopGame', {});
+		
 	}
 }

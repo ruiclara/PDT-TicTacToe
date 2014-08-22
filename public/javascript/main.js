@@ -90,6 +90,8 @@ socket.on('move', function(data) {
 // Server warns the client that it is its turn
 socket.on('turn', function(data) {
 	$('#status').text('Your turn!');
+	('#onlinePlayers').show();
+	$('#gameTable').hide();
 });
 
 socket.on('stopGame', function(data) {
