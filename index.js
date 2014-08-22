@@ -84,7 +84,15 @@ io.sockets.on('connection', function(socket) {
 		var newGame  = new Game(socket.username, data.source);
 		var newLength = global.games.push(newGame);
 		newGame.startGame(newLength-1);
-		global.onlinePlayers[newGame.players[newGame.currentPlayerIndex]].emit('turn', {});
+		// Send start game command
+		global.onlinePlayers[newGame.player1].emit('startGame', {	gameID: newGame.gameID,
+																	opponent: newGame.player2});
+		global.onlinePlayers[newGame.player1].gameID = newGame.gameID;
+		global.onlinePlayers[newGame.player2].emit('startGame', {	gameID: newGame.gameID,
+																	opponent: newGame.player1});
+		global.onlinePlayers[newGame.player2].gameID = newGame.gameID;
+		// Give go to first player
+		global.onlinePlayers[newGame.currentPlayer].emit('turn', {});
 	});
 
 	// Client sends request to make a move
@@ -98,14 +106,17 @@ io.sockets.on('connection', function(socket) {
 
 		var game = global.games[data.gameID];
 		if(game.move(socket.username, data.move)) {
-			for(var player = 0; player < global.games[data.gameID].players.length; player++) {
-				global.onlinePlayers[game.players[player]].emit(
-															'move', 
-														{	move: data.move, 
-															symbol: game.playerSymbols[game.currentPlayerIndex]
-														});
-			}
-			global.onlinePlayers[game.players[game.currentPlayerIndex]].emit('turn', {});
+			global.onlinePlayers[game.player1].emit(
+														'move', 
+													{	move: data.move, 
+														symbol: game.playerSymbols[game.currentPlayer]
+													});
+			global.onlinePlayers[game.player2].emit(
+														'move', 
+													{	move: data.move, 
+														symbol: game.playerSymbols[game.currentPlayer]
+													});
+			global.onlinePlayers[game.currentPlayer].emit('turn', {});
 		}
 		else {
 			console.log('Not valid!');
@@ -119,6 +130,11 @@ io.sockets.on('connection', function(socket) {
 			console.log('An identified user disconnected! Socket info: ' + socket);
 			return;
 		}
+
+		// Stop any game the user is currently in
+		games[socket.gameID].stopGame();
+
+		// Remove player
 		var playerIndex = global.onlinePlayers.indexOf(socket.username);
 		global.onlinePlayers.splice(global.playerNames[playerIndex]);
 		global.playerNames.splice(playerIndex, 1);
@@ -128,20 +144,22 @@ io.sockets.on('connection', function(socket) {
 
 // GAME CLASSS
 function Game(player1, player2) {
-	this.players = [player1, player2];
-	this.playerSymbols = ['X', 'O']
-	this.currentPlayerIndex = 0; // Initialize to player 1 to avoid possiblle initilization problems
+	this.gameID;
+	this.roundCount = 0;
+	this.player1 = player1;
+	this.player2 = player2; 
+	this.playerSymbols = new Array();
+	this.playerSymbols[player1] = 'X';
+	this.playerSymbols[player2] = 'O';
+	this.currentPlayer = player1; // Initialize to player 1 to avoid possiblle initilization problems
 	this.table = new Array();
 
 	this.startGame = function(gameID)  {
+		this.gameID = gameID;
 		this.table = [
 						[0 , 0, 0],
 						[0 , 0, 0],
 						[0 , 0, 0]];
-		for(var player = 0; player < this.players.length; player++) {
-			// This needs to get out of game - It's out of it's scope
-			global.onlinePlayers[this.players[player]].emit('startGame', {gameID: gameID, opponent: this.players[player]});
-		}
 	};
 
 	this.setInitialPlayer = function(player) {
@@ -149,21 +167,38 @@ function Game(player1, player2) {
 	}
 
 	this.getNextPlayer = function() {
-		this.currentPlayerIndex++;
-		if(this.currentPlayerIndex >= this.players.length) {
-			this.currentPlayerIndex = 0;
+		if(this.currentPlayer === player1) {
+			this.currentPlayer = player2;
+		}
+		else {
+			this.currentPlayer = player1;
 		}
 	}
 
 	// TODO: Check if player can play in this game
 	this.move = function(player, move) {
-		if(this.table[move.row][move.col] === 0 && player === this.players[this.currentPlayerIndex]) {
+		if(this.table[move.row][move.col] === 0 && player === this.currentPlayer) {
 			this.table[move.row][move.col] = player;
 			this.getNextPlayer();
+			this.roundCount++;
 			return true;
 		}
 		else {
 			return false;
 		}
+	}
+
+	// Checks if the game is finished
+	// 
+	this.checkGame = function() {
+		if(this.roundCount < 5 ) {
+			return '';
+		}
+	}
+
+	// Stop Game
+	this.stopGame = function() {
+		player1.emit('stopGame', {});
+		player2.emit('stopGame', {});
 	}
 }

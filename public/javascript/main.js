@@ -92,6 +92,10 @@ socket.on('turn', function(data) {
 	$('#status').text('Your turn!');
 });
 
+socket.on('stopGame', function(data) {
+	window.alert('Game has stopped!');
+});
+
 // Store this a in a player management file
 function send() {
 	socket.emit('send', {message: 'This was sent by the server'});

@@ -14,9 +14,10 @@
   "author": "Rui Teixeira",
   "license": "ISC",
   "dependencies": {
-    "socket.io": "latest",
+    "ejs": "latest",
     "express": "latest",
+    "indexof": "0.0.1",
     "jade": "latest",
-    "ejs": "latest"
+    "socket.io": "latest"
   }
 }
